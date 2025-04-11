@@ -2,28 +2,26 @@ import React, { useEffect, useState } from 'react';
 import PhoneInput from 'react-phone-input-2'
 import 'react-phone-input-2/lib/style.css'
 import SocialMediaIcons from './SocialMediaIcons';
-import { FaFacebookF, FaInstagram, FaLinkedin, FaPinterest, FaWhatsapp, FaYoutube } from 'react-icons/fa6';
-import { SiGooglemybusiness } from 'react-icons/si';
-import logo from '../img/Logo-TL.png'
+import { FaFacebookF, FaInstagram, FaLinkedin, FaPinterest, FaWhatsapp, FaYoutube, FaGlobeAmericas, FaLocationDot } from 'react-icons/fa';
+import { SiGoogle } from 'react-icons/si';
+import { MapPin } from 'lucide-react';
 import CountrySelector from './countrySelector';
 import TooltipButton from './ToolTipButton';
 import { FaAsterisk } from "react-icons/fa";
 import { motion } from 'framer-motion';
-import { FaLocationDot } from "react-icons/fa6";
-import { products, service } from '../constants/datas';
-import toast from 'react-hot-toast';
-import { FaGlobeAmericas } from "react-icons/fa";
 import { RiServiceFill } from "react-icons/ri";
 import { useNavigate } from 'react-router-dom';
 import SuccessModal from './CustomModal';
 import ChatbotModal from './ChatBot';
-import { addEnquiry, getBusiness, getProduct, getService } from '../Api/webApi';
+import { addEnquiry, getBusiness, getProduct, getService, getSocial } from '../Api/webApi';
 
 const ContactForm = () => {
   const [phone, setPhone] = useState('');
   const [items, setItems] = useState([]);
   const [selectedProducts, setSelectedProduct] = useState([]);
   const [wurl, setWurl] = useState("");
+  const [socialMedia, setSocialMedia] = useState([]);
+  const [loadingSocial, setLoadingSocial] = useState(true);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -52,6 +50,19 @@ const ContactForm = () => {
   const [services, setServices] = useState([]);
   const [business, setBusiness] = useState([]);
   const [product, setProduct] = useState([]);
+  
+  // Social media icon mapping
+  const socialIcons = {
+    instagram: <FaInstagram className="md:text-2xl text-lg transition-all duration-300 ease-in-out hover:text-black text-pink-500" />,
+    facebook: <FaFacebookF className="md:text-2xl text-lg transition-all duration-300 ease-in-out hover:text-black text-blue-500" />,
+    whatsapp: <FaWhatsapp className="md:text-2xl text-lg transition-all duration-300 ease-in-out hover:text-black text-green-500" />,
+    youtube: <FaYoutube className="md:text-2xl text-lg transition-all duration-300 ease-in-out hover:text-black text-red-500" />,
+    linkedin: <FaLinkedin className="md:text-2xl text-lg transition-all duration-300 ease-in-out hover:text-black text-blue-600" />,
+    map: <MapPin className="md:text-2xl text-lg hover:text-black transition-all duration-300 ease-in-out text-blue-600" />,
+    pinterest: <FaPinterest className="md:text-2xl text-lg transition-all duration-300 ease-in-out hover:text-black text-red-600" />,
+    google_business: <SiGoogle className="md:text-2xl text-lg transition-all duration-300 ease-in-out hover:text-black text-blue-600" />,
+    website: <FaGlobeAmericas className="md:text-2xl text-lg hover:text-black transition-all duration-300 ease-in-out text-stone-600" />
+  };
   
   const closeModal = () => {
     setShowModal(false);
@@ -83,11 +94,29 @@ const ContactForm = () => {
       console.error(error);
     }
   }
+  
+  const fetchSocialMedia = async () => {
+    try {
+      setLoadingSocial(true);
+      const response = await getSocial();
+      console.log(response.data.data);
+      if (response && response.data && response.data.data) {
+        setSocialMedia(response.data?.data);
+      } else {
+        console.error("Social media data not found in response");
+      }
+    } catch (error) {
+      console.error("Error fetching social media data:", error);
+    } finally {
+      setLoadingSocial(false);
+    }
+  }
 
   useEffect(() => {
     fetchService();
     fetchProducts();
     fetchBusiness();
+    fetchSocialMedia();
   }, []);
   
   const handleService = (e) => {
@@ -565,7 +594,6 @@ const ContactForm = () => {
             type='button' 
             onClick={() => navigate("/products&services")}
           >
-            {/* <img src="https://tltechnologies.net/assets/images/logo.svg" className="h-8 w-auto" alt="TL Technologies Logo" /> */}
             <h1>Products & Services</h1>
           </button>
 
@@ -579,43 +607,28 @@ const ContactForm = () => {
         </div>
 
         <div className="flex justify-evenly items-center w-full flex-wrap text-black">
-          <span>follow us</span>
-          <SocialMediaIcons
-            icon={<FaWhatsapp className="md:text-2xl text-lg transition-all duration-300 ease-in-out hover:text-black text-green-500" />}
-            link={"https://api.whatsapp.com/send/?phone=%2B919061432814&text=Hello%2C+I+am+interested+to+know+more+about+PRODUCTS+%26+SERVICES&type=phone_number&app_absent=0"}
-          />
-          <SocialMediaIcons
-            icon={<FaGlobeAmericas className="md:text-2xl text-lg hover:text-black transition-all duration-300 ease-in-out text-stone-600" />}
-            link={"https://tltechnologies.net/"}
-          />
-          <SocialMediaIcons
-            icon={<SiGooglemybusiness className="md:text-2xl text-lg transition-all duration-300 ease-in-out hover:text-black text-blue-600" />}
-            link={"https://www.google.com/search?q=tltechnologies&rlz=1C1ONGR_enIN1100IN1100&oq=tltechnologies&gs_lcrp=EgZjaHJvbWUyBggAEEUYOTIPCAEQLhgKGK8BGMcBGIAEMgkIAhAAGAoYgAQyCggDEAAYgAQYogQyCggEEAAYgAQYogQyBggFEEUYPDIGCAYQRRg8MgYIBxBFGDzSAQkzMDgzMWowajeoAgCwAgA&sourceid=chrome&ie=UTF-8"}
-          />
-          <SocialMediaIcons
-            icon={<FaLocationDot className="md:text-2xl text-lg hover:text-black transition-all duration-300 ease-in-out text-blue-600" />}
-            link={"https://maps.app.goo.gl/udfxj53LVog3yR9p9"}
-          />
-          <SocialMediaIcons
-            icon={<FaFacebookF className="md:text-2xl text-lg transition-all duration-300 ease-in-out hover:text-black text-blue-500" />}
-            link={"https://www.facebook.com/tltechnologiespvtltd"}
-          />
-          <SocialMediaIcons
-            icon={<FaInstagram className="md:text-2xl text-lg transition-all duration-300 ease-in-out hover:text-black text-pink-500" />}
-            link={"https://www.instagram.com/tltechnologiespvtltd/"}
-          />
-          <SocialMediaIcons
-            icon={<FaYoutube className="md:text-2xl text-lg transition-all duration-300 ease-in-out hover:text-black text-red-500" />}
-            link={"https://www.youtube.com/@tltechnologiespvtltd-sangi"}
-          />
-          <SocialMediaIcons
-            icon={<FaPinterest className="md:text-2xl text-lg transition-all duration-300 ease-in-out hover:text-black text-red-600" />}
-            link={"https://in.pinterest.com/tltechnologiespvtltd/"}
-          />
-          <SocialMediaIcons
-            icon={<FaLinkedin className="md:text-2xl text-lg transition-all duration-300 ease-in-out hover:text-black text-blue-600" />}
-            link={"https://www.linkedin.com/company/tltechnologiespvtltd/"}
-          />
+          {loadingSocial ? (
+            <div className="w-full text-center py-2">Loading social media...</div>
+          ) : socialMedia && socialMedia.length > 0 ? (
+            <>
+              <span>follow us</span>
+              {socialMedia.map((item, index) => {
+                // Check if we have an icon for this social media type
+                if (socialIcons[item.platform]) {
+                  return (
+                    <SocialMediaIcons
+                      key={index}
+                      icon={socialIcons[item.platform]}
+                      link={item.url}
+                    />
+                  );
+                }
+                return null;
+              })}
+            </>
+          ) : (
+            <div className="w-full text-center py-2">No social media links available</div>
+          )}
         </div>
       </form>
     </div>
