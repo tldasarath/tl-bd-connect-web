@@ -4,7 +4,7 @@ import { HiArrowNarrowLeft } from "react-icons/hi";
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import ProductCard from '../Components/ProductCard';
-import logo from '../img/Logo-TL.png';
+// import logo from '../img/Logo-TL.png';
 import { RiServiceFill } from "react-icons/ri";
 import { FaOpencart } from "react-icons/fa";
 import bg from '../img/2148192441.jpg'

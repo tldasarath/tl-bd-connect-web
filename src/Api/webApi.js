@@ -45,3 +45,13 @@ export const addEnquiry =async(enquiryData)=>{
         
     }
 }
+export const getSocial =async()=>{
+    try {
+        const response = await axiosInstance.get('/social/get-all-social')
+        console.log(response);
+        return response
+    } catch (error) {
+        console.error(error);
+        
+    }
+}
