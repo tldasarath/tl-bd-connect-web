@@ -13,7 +13,7 @@ import { RiServiceFill } from "react-icons/ri";
 import { useNavigate } from 'react-router-dom';
 import SuccessModal from './CustomModal';
 import ChatbotModal from './ChatBot';
-import { addEnquiry, getBusiness, getProduct, getService, getSocial } from '../Api/webApi';
+import { addEnquiry, getBusiness, getProduct, getService, getSocial, getTooltips } from '../Api/webApi';
 
 const ContactForm = () => {
   const [phone, setPhone] = useState('');
@@ -43,14 +43,15 @@ const ContactForm = () => {
     selectedProducts: "",
     items: ""
   });
-  
+
   const [showModal, setShowModal] = useState(false);
-  const [modalType, setModalType] = useState('success'); // 'success' or 'error'
+  const [modalType, setModalType] = useState('success');
   const [message, setMessage] = useState('');
   const [services, setServices] = useState([]);
   const [business, setBusiness] = useState([]);
   const [product, setProduct] = useState([]);
-  
+  const [tooltips, setTooltips] = useState({});
+
   // Social media icon mapping
   const socialIcons = {
     instagram: <FaInstagram className="md:text-2xl text-lg transition-all duration-300 ease-in-out hover:text-black text-pink-500" />,
@@ -99,7 +100,6 @@ const ContactForm = () => {
     try {
       setLoadingSocial(true);
       const response = await getSocial();
-      console.log(response.data.data);
       if (response && response.data && response.data.data) {
         setSocialMedia(response.data?.data);
       } else {
@@ -112,12 +112,29 @@ const ContactForm = () => {
     }
   }
 
+  const fetchTooltips = async () => {
+    try {
+      const response = await getTooltips();
+console.log(response);
+      const tooltipMap = response.data.reduce((map, tooltip) => {
+        map[tooltip.fieldType] = tooltip.content;
+        return map;
+      }, {});
+      setTooltips(tooltipMap);
+    } catch (error) {
+      console.error("Error loading tooltips:", error);
+    }
+  };
+
+
   useEffect(() => {
     fetchService();
     fetchProducts();
     fetchBusiness();
     fetchSocialMedia();
+    fetchTooltips()
   }, []);
+
   
   const handleService = (e) => {
     const selectedService = e.target.value;
@@ -310,7 +327,7 @@ const ContactForm = () => {
               <FaAsterisk className='text-red-500 text-sm pe-2' />Name 
               <TooltipButton
                 icon
-                content={<p>Enter your full name as it appears on official documents.</p>}
+                content={<p>{tooltips.name || "Enter your full name as it appears on official documents."}</p>}
               />
             </label>
             <input

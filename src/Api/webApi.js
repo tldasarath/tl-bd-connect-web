@@ -55,3 +55,14 @@ export const getSocial =async()=>{
         
     }
 }
+
+export const getTooltips =async()=>{
+    try {
+        const response = await axiosInstance.get('/tooltips/view-all-tooltips')
+        console.log(response);
+        return response
+    } catch (error) {
+        console.error(error);
+        
+    }
+}
