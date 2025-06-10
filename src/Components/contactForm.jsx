@@ -52,7 +52,6 @@ const ContactForm = () => {
   const [product, setProduct] = useState([]);
   const [tooltips, setTooltips] = useState({});
 
-  // Social media icon mapping
   const socialIcons = {
     instagram: <FaInstagram className="md:text-2xl text-lg transition-all duration-300 ease-in-out hover:text-black text-pink-500" />,
     facebook: <FaFacebookF className="md:text-2xl text-lg transition-all duration-300 ease-in-out hover:text-black text-blue-500" />,
@@ -115,17 +114,19 @@ const ContactForm = () => {
   const fetchTooltips = async () => {
     try {
       const response = await getTooltips();
-console.log(response);
-      const tooltipMap = response.data.reduce((map, tooltip) => {
-        map[tooltip.fieldType] = tooltip.content;
+      console.log('Tooltip Response:', response.data.data);
+      
+      const tooltipMap = response.data.data.reduce((map, tooltip) => {
+        map[tooltip.FieldType] = tooltip.content;
         return map;
       }, {});
+      
+      console.log('Tooltip Map:', tooltipMap);
       setTooltips(tooltipMap);
     } catch (error) {
       console.error("Error loading tooltips:", error);
     }
   };
-
 
   useEffect(() => {
     fetchService();
@@ -135,12 +136,10 @@ console.log(response);
     fetchTooltips()
   }, []);
 
-  
   const handleService = (e) => {
     const selectedService = e.target.value;
     if (selectedService && !items.includes(selectedService)) {
       setItems((prevItems) => [...prevItems, selectedService]);
-      // Clear any previous error for services
       setError(prev => ({...prev, items: ""}));
     }
   };
@@ -149,7 +148,6 @@ console.log(response);
     const selectedProduct = e.target.value;
     if (selectedProduct && !selectedProducts.includes(selectedProduct)) {
       setSelectedProduct((prevProducts) => [...prevProducts, selectedProduct]);
-      // Clear any previous error for products
       setError(prev => ({...prev, selectedProducts: ""}));
     }
   };
@@ -158,7 +156,7 @@ console.log(response);
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
     
-    // Clear error when field is being edited
+
     if (error[name]) {
       setError({...error, [name]: ""});
     }
@@ -193,7 +191,7 @@ console.log(response);
       newError.phone = "Phone number is required.";
       hasError = true;
     } else {
-      const normalizedPhoneNumber = phone.replace(/\D/g, ""); // Remove non-numeric characters
+      const normalizedPhoneNumber = phone.replace(/\D/g, ""); 
       const minPhoneLength = 10;
 
       if (normalizedPhoneNumber.length < minPhoneLength) {
@@ -246,7 +244,7 @@ console.log(response);
 
     setError(newError);
 
-    // If there are any errors, stop form submission
+
     if (hasError) {
       setMessage('There was an issue with your submission');
       setModalType('error');
@@ -254,7 +252,7 @@ console.log(response);
       return;
     }
 
-    // Prepare data for submission
+
     const submissionData = {
       ...formData,
       phone: phone,
@@ -270,7 +268,7 @@ console.log(response);
         setMessage(`We've received your submission and will contact you shortly.`);
         setModalType('success');
         
-        // Reset form after successful submission
+
         setFormData({
           name: '',
           email: '',
@@ -344,7 +342,7 @@ console.log(response);
           <div>
             <label className="gap-1 flex items-center text-xs font-bold text-gray-700 ps-4">
               <FaAsterisk className='text-transparent text-sm pe-2' />Email 
-              <TooltipButton content={<p>We'll use this email to contact you.</p>} />
+              <TooltipButton content={<p>{tooltips.email || "We'll use this email to contact you."}</p>} />
             </label>
             <input
               name="email"
@@ -361,7 +359,7 @@ console.log(response);
           <div>
             <label className="gap-1 flex items-center text-xs font-bold text-gray-700 ps-4">
               <FaAsterisk className='text-red-500 text-sm pe-2' />Phone Number
-              <TooltipButton content={<p>Provide your contact number including country code.</p>} />
+              <TooltipButton content={<p>{tooltips.phoneNumber || "Provide your contact number including country code."}</p>} />
             </label>
             <PhoneInput
               country={'in'}
@@ -392,7 +390,7 @@ console.log(response);
             <label className="gap-1 flex items-center text-xs font-bold text-gray-700 ps-4">
               <FaAsterisk className='text-red-500 text-sm pe-2' />Country
               <TooltipButton
-                content={<p>Select the country you are located in.</p>}
+                content={<p>{tooltips.country || "Select the country you are located in."}</p>}
                 onClick={(e) => e.stopPropagation()}
               />
             </label>
@@ -410,7 +408,7 @@ console.log(response);
           <label className="gap-1 flex items-center text-xs font-bold text-gray-700 ps-4">
             <FaAsterisk className='text-red-500 text-sm pe-2' />Line of business
             <TooltipButton
-              content={<p>Choose the industry or field your business operates in.</p>}
+              content={<p>{tooltips.lineOfBusiness || "Choose the industry or field your business operates in."}</p>}
               onClick={(e) => e.stopPropagation()}
             />
           </label>
@@ -439,7 +437,7 @@ console.log(response);
                 Products
                 <TooltipButton
                   icon
-                  content={<p>Select the Products you're interested in</p>}
+                  content={<p>{tooltips.products || "Select the Products you're interested in"}</p>}
                 />
               </div>
               <div className='flex justify-between items-center gap-2'>
@@ -506,8 +504,6 @@ console.log(response);
             </div>
             <p className='text-[red] ps-4 text-[10px]'>{error.selectedProducts}</p>
           </div>
-
-          {/* Services Section */}
           <div>
             <label className="relative flex items-center justify-between">
               <div className="flex items-center gap-1 text-xs font-bold text-gray-700 ps-4">
@@ -515,7 +511,7 @@ console.log(response);
                 Services
                 <TooltipButton
                   icon
-                  content={<p>Select the Services you're interested in</p>}
+                  content={<p>{tooltips.services || "Select the Services you're interested in"}</p>}
                 />
               </div>
               <div className='flex justify-between items-center gap-2'>
@@ -587,7 +583,7 @@ console.log(response);
           <label className="gap-1 flex items-center text-xs font-bold text-gray-700 ps-4">
             <FaAsterisk className='text-red-500 text-sm pe-2' />Message
             <TooltipButton
-              content={<p>Let us know how we can assist you.</p>}
+              content={<p>{tooltips.message || "Let us know how we can assist you."}</p>}
               onClick={(e) => e.stopPropagation()}
             />
             <span className="text-blue-500 px-4 font-normal">
@@ -630,7 +626,6 @@ console.log(response);
             <>
               <span>follow us</span>
               {socialMedia.map((item, index) => {
-                // Check if we have an icon for this social media type
                 if (socialIcons[item.platform]) {
                   return (
                     <SocialMediaIcons
