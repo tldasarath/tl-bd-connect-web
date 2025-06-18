@@ -44,7 +44,7 @@ function LandingPage() {
               <ContactForm />
             </div>
           </div>
-          <p className="md:mt-4 py-2  text-center w-full bg-black md:bg-transparent  md:text-md text-xs  text-white font-bold">&#169; {" "}COPYRIGHT 2024 - <a href="http://tltechnologies.net" rel="noreferrer" target="_blank">TL TECHNOLOGIES</a>. ALL RIGHTS  RESERVED.</p>
+          <p className="md:mt-4 py-2  text-center w-full bg-black md:bg-transparent  md:text-md text-xs  text-white font-bold">&#169; {" "}COPYRIGHT 2025 - <a href="http://tltechnologies.net" rel="noreferrer" target="_blank">TL TECHNOLOGIES</a>. ALL RIGHTS  RESERVED.</p>
         </div>
       </div>
     </div>
