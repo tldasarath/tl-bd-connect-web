@@ -113,20 +113,17 @@ const ContactForm = () => {
 
   const fetchTooltips = async () => {
     try {
-      const response = await getTooltips();
-      console.log('Tooltip Response:', response.data.data);
-      
+      const response = await getTooltips()      
       const tooltipMap = response.data.data.reduce((map, tooltip) => {
         map[tooltip.FieldType] = tooltip.content;
         return map;
       }, {});
-      
-      console.log('Tooltip Map:', tooltipMap);
-      setTooltips(tooltipMap);
+            setTooltips(tooltipMap);
     } catch (error) {
       console.error("Error loading tooltips:", error);
     }
   };
+
 
   useEffect(() => {
     fetchService();
@@ -134,6 +131,7 @@ const ContactForm = () => {
     fetchBusiness();
     fetchSocialMedia();
     fetchTooltips()
+
   }, []);
 
   const handleService = (e) => {

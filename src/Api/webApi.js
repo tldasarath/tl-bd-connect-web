@@ -48,7 +48,6 @@ export const addEnquiry =async(enquiryData)=>{
 export const getSocial =async()=>{
     try {
         const response = await axiosInstance.get('/social/get-all-social')
-        console.log(response);
         return response
     } catch (error) {
         console.error(error);
@@ -59,7 +58,15 @@ export const getSocial =async()=>{
 export const getTooltips =async()=>{
     try {
         const response = await axiosInstance.get('/tooltips/view-all-tooltips')
-        console.log(response);
+        return response
+    } catch (error) {
+        console.error(error);
+        
+    }
+}
+export const chatbot =async()=>{
+    try {
+        const response = await axiosInstance.get('/chatbot/get-all-question')
         return response
     } catch (error) {
         console.error(error);

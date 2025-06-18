@@ -1,70 +1,95 @@
 import "./App.css";
 import { BrowserRouter as Router, Route, Routes, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 import LandingPage from "./Pages/LandingPage";
 import TLServices from "./Pages/ServicePage";
 import LoadingSpinner from "./Components/LoadingSpinner";
 import NotFoundPage from "./Components/NotFoundPage";
 
 function App() {
-  const [loading, setLoading] = useState(true); // Set initial state to true
+  const [loading, setLoading] = useState(true);
+  const [seoData, setSeoData] = useState({
+    title: "Default Title",
+    description: "Default Description",
+    keywords: "default,keywords",
+    // Add other SEO fields you expect from the API
+  });
   const location = useLocation();
-  // <======================================== NOTES START ==============================================>
 
-  // Libraries used :   "tailwind-css" for css
-  // Read the documentaion in their respective sites for the above mentioned libraries before making changes in the code.
-  // To run the code: npm start
-  // First install all dependencies :- npm intsall
-  // Then run the code :- npm start
+  // Fetch SEO data from backend API
+  useEffect(() => {
+    const fetchSeoData = async () => {
+      try {
+        // Determine which SEO endpoint to call based on route
+        let endpoint = '';
+        if (location.pathname === '/') {
+          endpoint = 'Landingpage';
+        } else if (location.pathname === '/products&services') {
+          endpoint = 'Servicespage'; // Adjust based on your backend endpoints
+        }
 
-  // created date : 06-MAY-2024 || created by : Murthasa Ali  || module : 1 ||
-  // modified date : 05/09/2024 || modified by : Murthasa ALi || module : 1 ||
-  // modified date : 24/09/2024 || modified by : Murthasa Ali ck  || module : 1 ||
+        if (endpoint) {
+          const response = await fetch(`http://localhost:8080/api/v1/web/seo/get/${endpoint}`);
+          const data = await response.json();          
+          setSeoData(data.seoData);
+        }
+      } catch (error) {
+        console.error("Error fetching SEO data:", error);
+        // Fallback to default SEO values if API fails
+        setSeoData({
+          title: "Default Title",
+          description: "Default Description",
+          keywords: "default,keywords"
+        });
+      }
+    };
 
-  // Technical summary(Pre-setups) created date/by :  Murthasa Ali ||
-  // Domain :   || 
-  // Hosting :   ||
-  // SSL :   ||
-  // Database :  ||
+    fetchSeoData();
+  }, [location.pathname]);
 
-  // Phase summary :   || created date/by :  Ali  ||
-  // Phase 1 :  SetUps ||
-  // Phase 2 :  Development/Main page creation ||
-  // Phase 3 :  Production  ||
-
-  // <======================================== NOTES END ==============================================>
   useEffect(() => {
     const handleRouteChange = () => {
       setLoading(true);
       setTimeout(() => {
         setLoading(false);
-      }, 1500); // Adjust the timeout to match your animation duration
+      }, 1500);
     };
 
     handleRouteChange();
   }, [location.pathname]);
 
   useEffect(() => {
-    // Hide the loading spinner after the initial load
     const initialLoadTimeout = setTimeout(() => {
       setLoading(false);
-    }, 1500); // Adjust the timeout to match your initial loading spinner duration
+    }, 1500);
 
-    return () => clearTimeout(initialLoadTimeout); // Cleanup the timeout if the component unmounts
+    return () => clearTimeout(initialLoadTimeout);
   }, []);
 
   return (
-    <>
-      {loading && <LoadingSpinner />}
-      {!loading && (
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/products&services" element={<TLServices />} />
-          <Route path="*" element={<NotFoundPage />} /> {/* Catch-all route */}
+    <HelmetProvider>
+      <div className="App">
+        {/* SEO Meta Tags */}
+        <Helmet>
+          <title>{seoData.title}</title>
+          <meta name="description" content={seoData.description} />
+          <meta name="keywords" content={seoData.keywords} />
+          <meta property="og:title" content={seoData.title} />
+          <meta property="og:description" content={seoData.description} />
+          {/* Add other meta tags as needed */}
+        </Helmet>
 
-        </Routes>
-      )}
-    </>
+        {loading && <LoadingSpinner />}
+        {!loading && (
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/products&services" element={<TLServices />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        )}
+      </div>
+    </HelmetProvider>
   );
 }
 

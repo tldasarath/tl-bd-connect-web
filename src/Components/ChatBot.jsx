@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { IoChatbubbleEllipses, IoClose, IoSend } from "react-icons/io5";
 import { FaRobot } from "react-icons/fa";
 import { faqData } from '../constants/datas';
+import { chatbot } from '../Api/webApi';
 // Utility functions
 const calculateSimilarity = (str1, str2) => {
   const s1 = str1.toLowerCase();
@@ -55,13 +56,28 @@ const TypingIndicator = () => (
 );
 
 const FAQSuggestions = ({ onQuestionClick }) => {
-  const suggestedQuestions = [
-    "What services does TL TECHNOLOGIES provide?",
-    "What products does TL TECHNOLOGIES provide?",
-    "How does 'Being Digital' improve my online presence?",
-    "How does 'Being Digital' drive engagement and growth for my brand?",
-    "How can I contact TL TECHNOLOGIES?"
-  ];
+   const [suggestedQuestions,setSuggestedQuestions]=useState([])
+  const fetchChatbot =async ()=>{
+    try {
+      const response = await chatbot()
+      const data =response.data.chat.map((val)=>val.question)      
+    setSuggestedQuestions(data)
+      
+    } catch (error) {
+      console.error("Error loading chatbot:", error);
+    }
+  }
+  useEffect(()=>{
+fetchChatbot()
+  },[])
+
+  // const suggestedQuestions = [
+  //   "What services does TL TECHNOLOGIES provide?",
+  //   "What products does TL TECHNOLOGIES provide?",
+  //   "How does 'Being Digital' improve my online presence?",
+  //   "How does 'Being Digital' drive engagement and growth for my brand?",
+  //   "How can I contact TL TECHNOLOGIES?"
+  // ];
 
 
 
@@ -96,52 +112,82 @@ const ChatBotModal = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
   const messagesEndRef = useRef(null);
+  const [chatdata,setChatdata]=useState([])
+  const fetchChatbot =async ()=>{
+    try {
+      const response = await chatbot()
+      setChatdata(response.data.chat)
+      
+    } catch (error) {
+      console.error("Error loading chatbot:", error);
+    }
+  }
+  useEffect(()=>{
+    fetchChatbot()
+  },[])
+  
 
 
-  const findBestMatch = (input) => {
-    const inputKeywords = extractKeywords(input);
-    let bestMatch = { faq: null, score: 0 };
+const findBestMatch = (input) => {
+  if (!chatdata || chatdata.length === 0) return null;
+  
+  // First try exact match (case insensitive)
+  const exactMatch = chatdata.find(faq => 
+    faq.question.toLowerCase() === input.toLowerCase()
+  );
+  if (exactMatch) return exactMatch;
 
-    faqData.forEach(faq => {
-      let score = 0;
-      if (faq.question.toLowerCase().includes(input.toLowerCase())) score += 2;
+  // Then try partial match (question contains input or vice versa)
+  const partialMatch = chatdata.find(faq => 
+    faq.question.toLowerCase().includes(input.toLowerCase()) || 
+    input.toLowerCase().includes(faq.question.toLowerCase())
+  );
+  if (partialMatch) return partialMatch;
 
-      inputKeywords.forEach(keyword => {
-        if (faq.keywords.includes(keyword)) score += 1;
-        faq.keywords.forEach(faqKeyword => {
-          const similarity = calculateSimilarity(keyword, faqKeyword);
-          if (similarity > 0.7) score += similarity;
-        });
-      });
+  // Then try keyword matching (split and compare words)
+  const inputWords = input.toLowerCase().split(/\s+/);
+  let bestMatch = null;
+  let highestScore = 0;
 
-      const questionSimilarity = calculateSimilarity(input, faq.question);
-      score += questionSimilarity * 2;
+  chatdata.forEach(faq => {
+    const questionWords = faq.question.toLowerCase().split(/\s+/);
+    const commonWords = inputWords.filter(word => 
+      questionWords.includes(word)
+    );
+    const score = commonWords.length / questionWords.length;
+    
+    if (score > highestScore) {
+      highestScore = score;
+      bestMatch = faq;
+    }
+  });
 
-      if (score > bestMatch.score) bestMatch = { faq, score };
-    });
-
-    return bestMatch;
-  };
+  // Only return if we have a decent match (at least 50% words matching)
+  return highestScore > 0.5 ? bestMatch : null;
+};
 
   const generateResponse = (input) => {
-    const greetings = ['hello', 'hi', 'hey'];
-    const goodbyes = ['bye', 'goodbye', 'see you'];
-    const thanks = ['thank', 'thanks'];
+  const greetings = ['hello', 'hi', 'hey'];
+  const goodbyes = ['bye', 'goodbye', 'see you'];
+  const thanks = ['thank', 'thanks'];
 
-    const inputLower = input.toLowerCase();
-    
-    if (greetings.some(greeting => inputLower.includes(greeting))) 
-      return "Hello! How can I help you?";
-    if (goodbyes.some(goodbye => inputLower.includes(goodbye))) 
-      return "Goodbye! Feel free to return anytime.";
-    if (thanks.some(thank => inputLower.includes(thank))) 
-      return "You're welcome! Need anything else?";
+  const inputLower = input.toLowerCase();
+  
+  if (greetings.some(greeting => inputLower.includes(greeting))) 
+    return "Hello! How can I help you?";
+  if (goodbyes.some(goodbye => inputLower.includes(goodbye))) 
+    return "Goodbye! Feel free to return anytime.";
+  if (thanks.some(thank => inputLower.includes(thank))) 
+    return "You're welcome! Need anything else?";
 
-    const match = findBestMatch(input);
-    if (match.score > 1.5) return match.faq.answer;
-    if (match.score > 0.8) return `${match.faq.answer} Feel free to ask for more details!`;
-    return "I'm not sure about that. Could you rephrase?";
-  };
+  const match = findBestMatch(input);
+  
+  if (match) {
+    return match.answer;
+  }
+  
+  return "I'm not sure about that. Could you rephrase or ask something else?";
+};
 
   const simulateTyping = (response) => {
     setIsTyping(true);

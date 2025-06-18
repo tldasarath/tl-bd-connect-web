@@ -104,7 +104,7 @@ const TLServices = () => {
             <footer className="col-span-full text-black font-bold py-4 z-10">
         <div className="container mx-auto">
           <p className="text-md">
-          COPYRIGHT © 2024              <a
+          COPYRIGHT © 2025              <a
               href="https://connect.tltechnologies.net/"
               target="_blank"
               rel="noopener noreferrer"
