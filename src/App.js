@@ -30,7 +30,7 @@ function App() {
         }
 
         if (endpoint) {
-          const response = await fetch(`http://localhost:8080/api/v1/web/seo/get/${endpoint}`);
+          const response = await fetch(`http://localhost:8080/api/v1/web/se/get/${endpoint}`);
           const data = await response.json();          
           setSeoData(data.seoData);
         }
@@ -77,7 +77,6 @@ function App() {
           <meta name="keywords" content={seoData.keywords} />
           <meta property="og:title" content={seoData.title} />
           <meta property="og:description" content={seoData.description} />
-          {/* Add other meta tags as needed */}
         </Helmet>
 
         {loading && <LoadingSpinner />}
