@@ -144,7 +144,9 @@ function Slider() {
         <div className="w-full h-full flex justify-center relative items-center">
          <Suspense fallback={<div>Loading...</div>}>
             <iframe
-              src={selectedDocument} // Show the selected PDF
+             src={`https://docs.google.com/gview?url=${encodeURIComponent(
+            selectedDocument
+          )}&embedded=true`}
               className="w-full h-full"
               title="Brochure"
             />
