@@ -73,3 +73,12 @@ export const chatbot =async()=>{
         
     }
 }
+export const getBrochure =async()=>{
+    try {
+        const response = await axiosInstance.get('/brochure/get-all-brochure')
+        return response
+    } catch (error) {
+        console.error(error);
+        
+    }
+}

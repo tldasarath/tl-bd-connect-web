@@ -9,6 +9,7 @@ import { MdOutlineKeyboardArrowDown } from "react-icons/md";
 import Typewriter from 'typewriter-effect';
 import { PDFViewer } from './Document';
 import { getSlider } from '../Api/webApi';
+import { getBrochure } from '../Api/webApi';
 
 function Slider() {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -16,6 +17,7 @@ function Slider() {
   const [selectedDocument, setSelectedDocument] = useState(null); // State for selected PDF
   const [drop, setDrop] = useState(false); // For dropdown visibility
   const [services, setServices] = useState([]);
+  const [brochure, setBrochure] = useState([]);
   
   const nextSlide = () => {
     if (services.length > 0) {
@@ -31,9 +33,19 @@ function Slider() {
       console.error(error);
     }
   };
+  const fetchBrochure = async () => {
+    try {
+      const response = await getBrochure();
+      setBrochure(response.data.brochures);
+      console.log("hello",response.data)
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
     fetchSlider();
+    fetchBrochure()
   }, []);
 
   useEffect(() => {
@@ -93,15 +105,15 @@ function Slider() {
 
               {drop && (
                 <div className="absolute top-full w-full flex flex-col gap-1 bg-white rounded-md bg-opacity-50 p-1 text-xs shadow-md z-50">
-                  {documents
-                    .sort((a, b) => a.name.localeCompare(b.name)) // Sort documents alphabetically
+                  {brochure
+                    // .sort((a, b) => a.title.localeCompare(b.title)) // Sort documents alphabetically
                     .map((doc) => (
                       <button 
                         key={doc.id} 
                         className="text-stone-950 md:text-xs text-[10px] w-full p-1 rounded-md bg-white shadow-lg hover:text-white hover:bg-stone-950 transition-all duration-300"
-                        onClick={() => handleDocumentSelect(doc.file)}
+                        onClick={() => handleDocumentSelect(doc.pdfFileUrl)}
                       >
-                        {doc.name}
+                        {doc.title}
                       </button>
                     ))}
                 </div>
